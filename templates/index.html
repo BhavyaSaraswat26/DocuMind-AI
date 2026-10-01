@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>DocuMind AI — Document Intelligence &amp; QA System</title>
+
+  <!-- Google Fonts: Inter (body) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+    rel="stylesheet"
+  />
+
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}" />
+</head>
+<body>
+
+  <!-- ======================================================================
+       Header
+       ====================================================================== -->
+  <header class="site-header">
+    <div class="header-brand">
+      <div class="header-logo" aria-hidden="true">🧠</div>
+      <div>
+        <div class="header-title">DocuMind AI</div>
+        <div class="header-subtitle">Document Intelligence &amp; QA System</div>
+      </div>
+    </div>
+  </header>
+
+  <!-- ======================================================================
+       Main content
+       ====================================================================== -->
+  <main class="main-content">
+
+    <!-- Status bar --------------------------------------------------------- -->
+    <div id="status-bar" class="status-bar" role="status" aria-live="polite">
+      <span id="status-dot" class="status-dot" aria-hidden="true"></span>
+      <span id="status-text">No document loaded — upload a PDF to get started.</span>
+    </div>
+
+    <!-- ====================================================================
+         Step 1 — Upload PDF
+         ==================================================================== -->
+    <section class="card" aria-labelledby="upload-heading">
+      <div class="card-header">
+        <span class="card-header-icon" aria-hidden="true">📂</span>
+        <h2 class="card-header-title" id="upload-heading">Upload Document</h2>
+        <span class="card-header-step">Step 1</span>
+      </div>
+      <div class="card-body">
+
+        <!-- Drag-and-drop zone -->
+        <div
+          id="upload-zone"
+          class="upload-zone"
+          role="button"
+          tabindex="0"
+          aria-label="PDF upload area. Click to browse or drag and drop a PDF file here."
+        >
+          <span class="upload-zone-icon" aria-hidden="true">📄</span>
+          <p class="upload-zone-title">Drag &amp; drop your PDF here</p>
+          <p class="upload-zone-subtitle">or browse from your computer — PDF only, max 50 MB</p>
+          <button class="btn-browse" id="browse-btn" type="button">
+            <span aria-hidden="true">📁</span> Browse PDF
+          </button>
+          <input type="file" id="pdf-input" accept=".pdf" aria-hidden="true" />
+        </div>
+
+        <!-- File info pill -->
+        <div id="file-info" class="file-info" role="status" aria-live="polite">
+          <span class="file-info-icon" aria-hidden="true">📄</span>
+          <div>
+            <div class="file-info-name" id="file-info-name"></div>
+            <div class="file-info-size" id="file-info-size"></div>
+          </div>
+          <button
+            class="file-info-clear"
+            id="file-clear-btn"
+            type="button"
+            aria-label="Remove selected file"
+            title="Remove"
+          >✕</button>
+        </div>
+
+        <!-- Upload button -->
+        <div class="upload-actions">
+          <button class="btn btn-primary" id="upload-btn" type="button" disabled>
+            <span aria-hidden="true">📤</span> Upload &amp; Process
+          </button>
+        </div>
+
+        <!-- Upload result -->
+        <div id="upload-result" class="upload-result" role="status" aria-live="polite"></div>
+
+      </div>
+    </section>
+
+    <!-- ====================================================================
+         Step 2 — Ask a question
+         ==================================================================== -->
+    <section class="card" aria-labelledby="qa-heading">
+      <div class="card-header">
+        <span class="card-header-icon" aria-hidden="true">💬</span>
+        <h2 class="card-header-title" id="qa-heading">Ask a Question</h2>
+        <span class="card-header-step">Step 2</span>
+      </div>
+      <div class="card-body">
+
+        <!-- Question input row -->
+        <div class="question-area">
+          <div class="question-input-wrap">
+            <label class="question-label" for="question-input">
+              Your question
+              <span style="font-weight:400;color:var(--text-muted)">(Ctrl+Enter to submit)</span>
+            </label>
+            <textarea
+              id="question-input"
+              class="question-input"
+              rows="2"
+              placeholder="Upload a PDF first to enable questions…"
+              disabled
+              aria-label="Question about the uploaded document"
+            ></textarea>
+          </div>
+          <button class="btn btn-navy" id="ask-btn" type="button" disabled>
+            <span aria-hidden="true">💬</span> Ask
+          </button>
+        </div>
+
+        <!-- Answer section -->
+        <div
+          id="answer-section"
+          class="answer-section"
+          role="region"
+          aria-label="Answer"
+          aria-live="polite"
+          style="margin-top:1.25rem"
+        >
+          <!-- Error (shown instead of answer box on failure) -->
+          <div id="answer-error" class="answer-error" style="display:none"></div>
+
+          <!-- Answer text -->
+          <div id="answer-box" class="answer-box" style="display:none"></div>
+
+          <!-- Source pages -->
+          <p id="sources-label" class="sources-label" style="display:none">
+            Retrieved from pages
+          </p>
+          <div id="sources-list" class="sources-list"></div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ====================================================================
+         How it works (informational — no interaction)
+         ==================================================================== -->
+    <section class="card" aria-labelledby="how-heading">
+      <div class="card-header">
+        <span class="card-header-icon" aria-hidden="true">ℹ️</span>
+        <h2 class="card-header-title" id="how-heading">How It Works</h2>
+      </div>
+      <div class="card-body">
+        <ol style="padding-left:1.2rem;color:var(--text-secondary);font-size:.88rem;line-height:2">
+          <li>Upload a PDF — the system extracts text from every page.</li>
+          <li>Text is split into overlapping chunks (1 000 chars, 150 overlap).</li>
+          <li>Each chunk is embedded using <strong>all-MiniLM-L6-v2</strong> and stored in <strong>Astra DB</strong>.</li>
+          <li>When you ask a question, the top-4 most relevant chunks are retrieved by vector similarity.</li>
+          <li>Retrieved chunks are passed as context to <strong>Groq (openai/gpt-oss-120b)</strong> along with your question.</li>
+          <li>The answer is generated strictly from the document — no outside knowledge is used.</li>
+        </ol>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ======================================================================
+       Footer
+       ====================================================================== -->
+  <footer class="site-footer">
+    DocuMind AI &mdash; 
+    Powered by LangChain · Astra DB · Groq · HuggingFace
+  </footer>
+
+  <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+</body>
+</html>

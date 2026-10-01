@@ -1,0 +1,3 @@
+# This file exists solely to make Git track the otherwise-empty uploads/ directory.
+# Uploaded PDFs are processed and deleted immediately — they are never committed.
+# See .gitignore: uploads/*.pdf

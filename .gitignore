@@ -1,0 +1,44 @@
+# Environment / secrets
+.env
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.egg-info/
+dist/
+build/
+*.egg
+.eggs/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Virtual environments
+venv/
+env/
+.venv/
+
+# Uploaded PDFs — keep the uploads/ directory itself but ignore any PDFs
+uploads/*.pdf
+
+# HuggingFace model cache (downloaded at runtime, large)
+.cache/
+huggingface/
+
+# Test and coverage artifacts
+.pytest_cache/
+htmlcov/
+.coverage
+
+# Logs
+*.log
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db

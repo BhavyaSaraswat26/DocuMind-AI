@@ -1,0 +1,31 @@
+# render.yaml — Render.com deployment configuration for DocuMind AI.
+#
+# This file defines a single Web Service.
+# All secret values (ASTRA_DB_*, GROQ_API_KEY) MUST be set in the
+# Render dashboard under "Environment" — never hardcoded here.
+#
+# IMPORTANT NOTES:
+# 1. Gunicorn uses 1 worker because the RAG components (HuggingFace
+#    embedding model, AstraDB connection) are module-level singletons.
+#    Multiple workers would each load the ~90 MB model separately,
+#    consuming excessive memory on a free/starter plan.
+# 2. The HuggingFace model is downloaded at startup on first deploy.
+#    This adds 1-2 minutes to the initial cold start.
+# 3. Render's free tier uses an ephemeral filesystem — uploaded PDFs
+#    are deleted after processing (which the app already does correctly).
+
+services:
+  - type: web
+    name: documind-ai
+    runtime: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn app:app --workers 1 --timeout 120 --bind 0.0.0.0:$PORT
+    envVars:
+      - key: ASTRA_DB_APPLICATION_TOKEN
+        sync: false        # Set manually in Render dashboard — never committed
+      - key: ASTRA_DB_API_ENDPOINT
+        sync: false        # Set manually in Render dashboard — never committed
+      - key: GROQ_API_KEY
+        sync: false        # Set manually in Render dashboard — never committed
+      - key: PYTHON_VERSION
+        value: "3.12"
